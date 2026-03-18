@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Breath Moment",
+  "short_name": "Breath Moment",
+  "version": "1.0.0",
+  "description": "A mindful breathing space — one minute, three breaths, right in your new tab.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [],
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
