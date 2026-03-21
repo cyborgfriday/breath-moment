@@ -131,11 +131,11 @@ const THEMES: ThemeConfig[] = [
     swatchGlow: "rgba(175,155,215,0.45)",
     bg:          "#eeeaf6",
     switcherBg:  "rgba(255,255,255,0.28)",
-    orbIdleBg:   "rgba(255,255,255,0.18)",
-    orbHoverBg:  "rgba(255,255,255,0.28)",
-    orbActiveBg: "rgba(255,255,255,0.36)",
-    idleShadow:  "0 0 18px 8px rgba(210,200,240,0.42), 0 0 45px 20px rgba(190,178,228,0.24), 0 0 80px 38px rgba(180,168,220,0.12)",
-    hoverShadow: "0 0 26px 12px rgba(220,210,248,0.52), 0 0 60px 28px rgba(195,185,235,0.30), 0 0 105px 50px rgba(185,175,228,0.16)",
+    orbIdleBg:   "rgba(220,210,240,0.20)",
+    orbHoverBg:  "rgba(215,205,238,0.30)",
+    orbActiveBg: "rgba(210,200,235,0.38)",
+    idleShadow:  "0 0 18px 8px rgba(200,188,230,0.36), 0 0 45px 20px rgba(180,168,218,0.20), 0 0 80px 38px rgba(170,158,210,0.10)",
+    hoverShadow: "0 0 26px 12px rgba(208,196,238,0.44), 0 0 60px 28px rgba(190,178,228,0.26), 0 0 105px 50px rgba(180,168,220,0.14)",
     blobs: {
       b1: "rgba(195,182,228,0.42)",   // top-right — soft lavender
       b2: "rgba(218,195,218,0.36)",   // top-left — dusty rose
@@ -156,14 +156,14 @@ const THEMES: ThemeConfig[] = [
     phaseDot: {
       // Soft periwinkle — stands out on lavender-white bg, stays gentle
       inhale: { lit: "rgba(125,138,200,1)", glow: "rgba(125,138,200,0.42)" },
-      hold:   { lit: "rgba(125,138,200,1)", glow: "rgba(125,138,200,0.38)" },
-      exhale: { lit: "rgba(125,138,200,1)", glow: "rgba(125,138,200,0.40)" },
+      hold:   { lit: "rgba(105,92,185,1)",  glow: "rgba(105,92,185,0.58)"  },
+      exhale: { lit: "rgba(125,138,200,1)", glow: "rgba(125,138,200,0.52)" },
     },
     phaseShadow: {
       // Soft lavender bloom — luminous but never heavy
       inhale: "0 0 50px 22px rgba(215,208,248,0.68), 0 0 95px 50px rgba(190,178,238,0.30), 0 0 155px 82px rgba(200,210,248,0.14)",
-      hold:   "0 0 38px 16px rgba(230,222,252,0.55), 0 0 72px 34px rgba(200,190,240,0.26), 0 0 138px 64px rgba(205,215,248,0.12)",
-      exhale: "0 0 44px 18px rgba(218,210,248,0.60), 0 0 84px 42px rgba(195,184,238,0.28), 0 0 145px 72px rgba(202,212,248,0.13)",
+      hold:   "0 0 38px 16px rgba(135,115,220,0.48), 0 0 72px 34px rgba(115,98,200,0.24), 0 0 138px 64px rgba(125,108,210,0.11)",
+      exhale: "0 0 44px 18px rgba(215,208,248,0.72), 0 0 84px 42px rgba(190,178,238,0.32), 0 0 145px 72px rgba(200,210,248,0.15)",
     },
     text: {
       primary:    "#5a5078",
@@ -647,10 +647,12 @@ function ThemeSwitcher({
   strings: LangStrings;
 }) {
   const [open, setOpen] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const current = themes.find(t => t.id === currentId)!;
 
   function handleLeave() {
     setOpen(false);
+    setHoveredId(null);
     onHoverEnd();
   }
 
@@ -710,20 +712,15 @@ function ThemeSwitcher({
           return (
             <button
               key={th.id}
-              onMouseEnter={(e) => {
-                onHover(th.id);
-                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = uiLine;
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-              }}
-              onClick={() => { onSelect(th.id); setOpen(false); onHoverEnd(); }}
+              onMouseEnter={() => { onHover(th.id); setHoveredId(th.id); }}
+              onMouseLeave={() => { setHoveredId(null); }}
+              onClick={() => { onSelect(th.id); setOpen(false); setHoveredId(null); onHoverEnd(); }}
               style={{
                 display: "flex", alignItems: "center", gap: "10px",
                 padding: "8px 11px",
                 borderRadius: "9px",
                 border: "none",
-                background: "transparent",
+                background: (!isActive && hoveredId === th.id) ? uiLine : "transparent",
                 cursor: "pointer",
                 transition: "background 0.12s ease",
                 width: "100%", outline: "none",
