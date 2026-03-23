@@ -44,15 +44,25 @@ try { renameSync(join(OUT, "_next"), join(OUT, "ext_assets")); } catch {}
 
 // ── 3. Remove files Chrome can't handle and unneeded extras ─────────────────
 const toDelete = [
+  // Next.js metadata
   "__next.__PAGE__.txt",
   "__next._full.txt",
   "__next._head.txt",
   "__next._index.txt",
   "__next._tree.txt",
   "index.txt",
+  // Unused pages
   "404.html",
   "_not-found",
   "404",
+  // Unused assets from create-next-app template
+  "images",
+  "file.svg",
+  "globe.svg",
+  "next.svg",
+  "vercel.svg",
+  "window.svg",
+  "favicon.ico",
 ];
 
 console.log("🗑  Removing unused files ...");
