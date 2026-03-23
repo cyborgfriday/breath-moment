@@ -96,8 +96,8 @@ const THEMES: ThemeConfig[] = [
       b6: "rgba(255,255,255,0.35)",
     },
     minuteDot: {
-      bg:     "radial-gradient(circle at 35% 35%, rgba(255,230,160,1) 0%, rgba(253,190,80,0.85) 45%, rgba(251,160,60,0.5) 100%)",
-      shadow: "0 0 8px 3px rgba(253,200,80,0.45), 0 0 16px 6px rgba(253,180,60,0.2)",
+      bg:     "radial-gradient(circle at 35% 35%, rgba(250,225,155,0.78) 0%, rgba(240,185,80,0.58) 45%, rgba(220,155,58,0.3) 100%)",
+      shadow: "0 0 7px 2px rgba(240,195,80,0.28), 0 0 14px 5px rgba(220,170,58,0.12)",
     },
     panel: { text: "#2d4a58", active: "rgba(255,255,255,0.45)" },
     glass: { bg: "rgba(255,255,255,0.22)", border: "rgba(255,255,255,0.48)" },
@@ -145,8 +145,8 @@ const THEMES: ThemeConfig[] = [
       b6: "rgba(255,255,255,0.48)",   // centre white glow
     },
     minuteDot: {
-      bg:     "radial-gradient(circle at 35% 35%, rgba(175,162,215,1) 0%, rgba(148,135,195,0.85) 45%, rgba(122,110,175,0.5) 100%)",
-      shadow: "0 0 8px 3px rgba(160,148,210,0.45), 0 0 16px 6px rgba(140,128,192,0.2)",
+      bg:     "radial-gradient(circle at 35% 35%, rgba(175,162,215,0.78) 0%, rgba(148,135,195,0.58) 45%, rgba(122,110,175,0.3) 100%)",
+      shadow: "0 0 7px 2px rgba(155,143,205,0.28), 0 0 14px 5px rgba(135,123,185,0.12)",
     },
     panel: { text: "#3a3058", active: "rgba(255,255,255,0.45)" },
     glass: { bg: "rgba(255,255,255,0.24)", border: "rgba(255,255,255,0.50)" },
@@ -195,8 +195,8 @@ const THEMES: ThemeConfig[] = [
       b6: "rgba(80,140,200,0.1)",
     },
     minuteDot: {
-      bg:     "radial-gradient(circle at 35% 35%, rgba(160,210,240,1) 0%, rgba(100,170,215,0.85) 45%, rgba(70,140,195,0.5) 100%)",
-      shadow: "0 0 8px 3px rgba(120,180,230,0.45), 0 0 16px 6px rgba(90,150,210,0.2)",
+      bg:     "radial-gradient(circle at 35% 35%, rgba(160,210,240,0.78) 0%, rgba(100,170,215,0.58) 45%, rgba(70,140,195,0.3) 100%)",
+      shadow: "0 0 7px 2px rgba(110,170,225,0.28), 0 0 14px 5px rgba(85,145,205,0.12)",
     },
     panel: { text: "#b0d0e2", active: "rgba(255,255,255,0.12)" },
     glass: { bg: "rgba(15,35,62,0.72)", border: "rgba(255,255,255,0.10)" },
@@ -475,11 +475,12 @@ const STRINGS: Record<LangCode, LangStrings> = {
 };
 
 const LANG_META: { code: LangCode; abbr: string; nativeLabel: string }[] = [
-  { code: "en", abbr: "EN",        nativeLabel: "English" },
-  { code: "zh", abbr: "\u4e2d",    nativeLabel: "\u4e2d\u6587" },
-  { code: "ja", abbr: "\u65e5",    nativeLabel: "\u65e5\u672c\u8a9e" },
-  { code: "ko", abbr: "\ud55c",    nativeLabel: "\ud55c\uad6d\uc5b4" },
-  { code: "es", abbr: "ES",        nativeLabel: "Espa\u00f1ol" },
+  { code: "en", abbr: "EN",     nativeLabel: "English" },
+  { code: "zh", abbr: "\u4e2d", nativeLabel: "\u4e2d\u6587" },
+  // Hidden during beta — strings are complete, re-enable with fonts when ready:
+  // { code: "ja", abbr: "\u65e5",  nativeLabel: "\u65e5\u672c\u8a9e" },
+  // { code: "ko", abbr: "\ud55c", nativeLabel: "\ud55c\uad6d\uc5b4" },
+  // { code: "es", abbr: "ES",     nativeLabel: "Espa\u00f1ol" },
 ];
 
 // ── Sub-components ────────────────────────────────────────────
@@ -684,12 +685,12 @@ function ThemeSwitcher({
       </button>
 
       {/* Invisible bridge */}
-      <div style={{ position: "absolute", top: "100%", right: 0, width: "100%", minWidth: 160, height: 10 }} />
+      <div style={{ position: "absolute", bottom: "100%", right: 0, width: "100%", minWidth: 160, height: 10 }} />
 
-      {/* Options panel */}
+      {/* Options panel — opens upward */}
       <div style={{
         position: "absolute",
-        top: "calc(100% + 10px)",
+        bottom: "calc(100% + 10px)",
         right: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
@@ -701,8 +702,8 @@ function ThemeSwitcher({
         minWidth: 152,
         boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         opacity: open ? 1 : 0,
-        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
-        transformOrigin: "top right",
+        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(6px)",
+        transformOrigin: "bottom right",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: open ? "auto" : "none",
         zIndex: 60,
@@ -1192,6 +1193,7 @@ export default function Home() {
   const dotTimer        = useRef<ReturnType<typeof setInterval> | null>(null);
   const completionTimer = useRef<ReturnType<typeof setTimeout>  | null>(null);
   const cycleRef        = useRef(1);
+  const langRef         = useRef<LangCode>(lang);
 
 
   // hoverThemeId gives live background preview; confirmed on click
@@ -1305,7 +1307,8 @@ export default function Home() {
     const hhmm   = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
     setDailyCount(prev => ({ ...prev, [today]: (prev[today] ?? 0) + 1 }));
     setSessionTimes(prev => ({ ...prev, [today]: [...(prev[today] ?? []), hhmm] }));
-    setCompletionMsg({ title: pick(strings.doneTitles), body: pick(strings.doneBodies) });
+    const s = STRINGS[langRef.current];
+    setCompletionMsg({ title: pick(s.doneTitles), body: pick(s.doneBodies) });
     setCompletion("done");
   }
 
@@ -1314,7 +1317,8 @@ export default function Home() {
     setIsBreathing(false);
     setPhase("inhale");
     setDotCount(0);
-    setCompletionMsg({ title: pick(strings.stoppedTitles), body: pick(strings.stoppedBodies) });
+    const s = STRINGS[langRef.current];
+    setCompletionMsg({ title: pick(s.stoppedTitles), body: pick(s.stoppedBodies) });
     setCompletion("stopped");
   }
 
@@ -1331,6 +1335,7 @@ export default function Home() {
 
   // ── Derived visual state ──────────────────────────────────
   const strings    = STRINGS[lang];
+  langRef.current  = lang; // always up-to-date for timer callbacks
   const it         = strings.italic ? "italic" as const : "normal" as const;
   const isCJK      = lang === "zh" || lang === "ja" || lang === "ko";
   // CJK letter-spacing and line-height helpers
@@ -1360,13 +1365,12 @@ export default function Home() {
       style={{
         background: theme.bg,
         transition: "background 0.9s ease",
-        "--font-serif": lang === "ja"
-          ? "var(--font-shippori), serif"
-          : lang === "ko"
-          ? "var(--font-noto-serif-kr), serif"
-          : lang === "zh"
+        "--font-serif": lang === "zh"
           ? "var(--font-noto-serif-tc), serif"
           : "var(--font-lora), Georgia, serif",
+          // When re-enabling ja/ko, add back:
+          // lang === "ja" ? "var(--font-shippori), serif"
+          // lang === "ko" ? "var(--font-noto-serif-kr), serif"
       } as React.CSSProperties}
     >
       {/* ── Decorative blobs ── */}
@@ -1395,12 +1399,11 @@ export default function Home() {
       {/* ── Logo ── */}
       <div className="absolute top-5 left-6 z-10">
         <span style={{
-          fontFamily: "var(--font-serif)",
+          fontFamily: "var(--font-lora), Georgia, serif",
           fontStyle: "italic",
           fontWeight: 400,
           fontSize: "0.82rem",
           letterSpacing: "0.08em",
-          // Use secondary (darker than muted) for better readability
           color: tx.secondary,
           transition: "color 0.9s ease",
         }}>
@@ -1408,20 +1411,9 @@ export default function Home() {
         </span>
       </div>
 
-      {/* ── Top-right cluster: clock + theme switcher ── */}
-      <div className="absolute top-4 right-5 z-50 flex items-center gap-3">
+      {/* ── Top-right: clock only ── */}
+      <div className="absolute top-4 right-5 z-50 flex items-center">
         <Clock textColor={theme.panel.text} />
-        <ThemeSwitcher
-          themes={THEMES}
-          currentId={themeId}
-          onSelect={setThemeId}
-          onHover={setHoverThemeId}
-          onHoverEnd={() => setHoverThemeId(null)}
-          panelText={theme.panel.text}
-          uiLine={theme.uiLine}
-          uiSurface={theme.uiSurface}
-          strings={strings}
-        />
       </div>
 
       {/* ── Completion screen (auto-dismisses after 3.5 s) ── */}
@@ -1655,19 +1647,21 @@ export default function Home() {
 
           {/* Stats: subtitle + dots. Tooltip floats up into the spacer, away from phrase */}
           <div className="flex flex-col items-center gap-4 pb-7 w-full">
-            <p style={{
-              fontFamily: "var(--font-serif)",
-              fontWeight: 300,
-              fontStyle: it,
-              fontSize: isCJK ? "0.82rem" : "0.9rem",
-              letterSpacing: isCJK ? "0.08em" : undefined,
-              lineHeight: isCJK ? 1.9 : undefined,
-              color: tx.secondary,
-              textAlign: "center",
-              transition: "color 0.9s ease",
-            }}>
-              {strings.subtitle(todayCount)}
-            </p>
+            {todayCount > 0 && (
+              <p style={{
+                fontFamily: "var(--font-serif)",
+                fontWeight: 300,
+                fontStyle: it,
+                fontSize: isCJK ? "0.82rem" : "0.9rem",
+                letterSpacing: isCJK ? "0.08em" : undefined,
+                lineHeight: isCJK ? 1.9 : undefined,
+                color: tx.secondary,
+                textAlign: "center",
+                transition: "color 0.9s ease",
+              }}>
+                {strings.subtitle(todayCount)}
+              </p>
+            )}
             <MinuteDots
               count={todayCount}
               times={todayTimes}
@@ -1682,15 +1676,19 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── Bottom-right: language + calendar ── */}
+      {/* ── Bottom-right: theme / date / language / settings ── */}
       {completion === null && (
-        <div className="absolute bottom-6 right-5 z-50 flex items-end gap-3">
-          <LanguageSwitcher
-            lang={lang}
-            onSelect={setLang}
+        <div className="absolute bottom-6 right-5 z-50 flex flex-col items-end gap-3">
+          <ThemeSwitcher
+            themes={THEMES}
+            currentId={themeId}
+            onSelect={setThemeId}
+            onHover={setHoverThemeId}
+            onHoverEnd={() => setHoverThemeId(null)}
             panelText={theme.panel.text}
             uiLine={theme.uiLine}
             uiSurface={theme.uiSurface}
+            strings={strings}
           />
           <CalendarPanel
             isOpen={isCalOpen}
@@ -1698,6 +1696,13 @@ export default function Home() {
             dailyCount={dailyCount}
             theme={theme}
             strings={strings}
+          />
+          <LanguageSwitcher
+            lang={lang}
+            onSelect={setLang}
+            panelText={theme.panel.text}
+            uiLine={theme.uiLine}
+            uiSurface={theme.uiSurface}
           />
         </div>
       )}

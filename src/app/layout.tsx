@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Lora, Noto_Serif_TC, Shippori_Mincho, Noto_Serif_KR } from "next/font/google";
+import { Lora, Noto_Serif_TC } from "next/font/google";
+// Hidden during beta — re-enable when Japanese/Korean languages are turned on:
+// import { Shippori_Mincho, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
 const lora = Lora({
@@ -14,21 +16,24 @@ const notoSerifTC = Noto_Serif_TC({
   weight: ["300", "400"],
 });
 
-const shipporiMincho = Shippori_Mincho({
-  variable: "--font-shippori",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-});
-
-const notoSerifKR = Noto_Serif_KR({
-  variable: "--font-noto-serif-kr",
-  subsets: ["latin"],
-  weight: ["300", "400"],
-});
+// const shipporiMincho = Shippori_Mincho({
+//   variable: "--font-shippori",
+//   subsets: ["latin"],
+//   weight: ["400", "500"],
+// });
+//
+// const notoSerifKR = Noto_Serif_KR({
+//   variable: "--font-noto-serif-kr",
+//   subsets: ["latin"],
+//   weight: ["300", "400"],
+// });
 
 export const metadata: Metadata = {
   title: "Breathe",
   description: "A mindful breathing space",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -38,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${lora.variable} ${notoSerifTC.variable} ${shipporiMincho.variable} ${notoSerifKR.variable} antialiased`}>{children}</body>
+      <body className={`${lora.variable} ${notoSerifTC.variable} antialiased`}>{children}</body>
     </html>
   );
 }
