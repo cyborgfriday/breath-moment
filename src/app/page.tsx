@@ -330,7 +330,7 @@ const STRINGS: Record<LangCode, LangStrings> = {
     dayNames:     ["日","一","二","三","四","五","六"],
     todayLabel:   "今天",
     thisMonth:    "本月",
-    themeLabels:  { river: "河畔", dawn: "薰衣草晨曦", night: "夜曲" },
+    themeLabels:  { river: "河畔微風", dawn: "薰衣草黎明", night: "月光夜曲" },
     italic:       false,
   },
 
@@ -685,13 +685,13 @@ function ThemeSwitcher({
       </button>
 
       {/* Invisible bridge */}
-      <div style={{ position: "absolute", bottom: "100%", right: 0, width: "100%", minWidth: 160, height: 10 }} />
+      <div style={{ position: "absolute", top: "100%", left: 0, width: "100%", height: 10 }} />
 
-      {/* Options panel — opens upward */}
+      {/* Options panel — opens downward */}
       <div style={{
         position: "absolute",
-        bottom: "calc(100% + 10px)",
-        right: 0,
+        top: "calc(100% + 10px)",
+        left: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
         borderRadius: "14px",
@@ -702,8 +702,8 @@ function ThemeSwitcher({
         minWidth: 152,
         boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         opacity: open ? 1 : 0,
-        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(6px)",
-        transformOrigin: "bottom right",
+        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
+        transformOrigin: "top left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: open ? "auto" : "none",
         zIndex: 60,
@@ -845,11 +845,11 @@ function LanguageSwitcher({
         </span>
       </button>
 
-      {/* Options panel — opens upward */}
+      {/* Options panel — opens downward */}
       <div style={{
         position: "absolute",
-        bottom: "calc(100% + 10px)",
-        right: 0,
+        top: "calc(100% + 10px)",
+        left: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
         borderRadius: "14px",
@@ -860,8 +860,8 @@ function LanguageSwitcher({
         minWidth: 110,
         boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         opacity: open ? 1 : 0,
-        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(6px)",
-        transformOrigin: "bottom right",
+        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
+        transformOrigin: "top left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: open ? "auto" : "none",
         zIndex: 60,
@@ -1023,11 +1023,11 @@ function CalendarPanel({
         </svg>
       </button>
 
-      {/* Calendar panel — opens upward, flat minimal style */}
+      {/* Calendar panel — opens downward, flat minimal style */}
       <div style={{
         position: "absolute",
-        bottom: "calc(100% + 12px)",
-        right: 0,
+        top: "calc(100% + 12px)",
+        left: 0,
         width: 272,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
@@ -1035,8 +1035,8 @@ function CalendarPanel({
         padding: "16px 14px 14px",
         boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         opacity: isOpen ? 1 : 0,
-        transform: isOpen ? "scale(1) translateY(0)" : "scale(0.94) translateY(8px)",
-        transformOrigin: "bottom right",
+        transform: isOpen ? "scale(1) translateY(0)" : "scale(0.94) translateY(-8px)",
+        transformOrigin: "top left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: isOpen ? "auto" : "none",
       }}>
@@ -1396,8 +1396,13 @@ export default function Home() {
             background: b.b6, filter: "blur(90px)", transition: "background 0.9s ease" }} />
       </div>
 
-      {/* ── Logo ── */}
-      <div className="absolute top-5 left-6 z-10">
+      {/* ── Top-center: clock ── */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+        <Clock textColor={theme.panel.text} />
+      </div>
+
+      {/* ── Top-right: brand name ── */}
+      <div className="absolute top-5 right-6 z-10">
         <span style={{
           fontFamily: "var(--font-lora), Georgia, serif",
           fontStyle: "italic",
@@ -1409,11 +1414,6 @@ export default function Home() {
         }}>
           Breath Moment
         </span>
-      </div>
-
-      {/* ── Top-right: clock only ── */}
-      <div className="absolute top-4 right-5 z-50 flex items-center">
-        <Clock textColor={theme.panel.text} />
       </div>
 
       {/* ── Completion screen (auto-dismisses after 3.5 s) ── */}
@@ -1676,9 +1676,23 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── Bottom-right: theme / date / language / settings ── */}
+      {/* ── Top-left: language / date / theme ── */}
       {completion === null && (
-        <div className="absolute bottom-6 right-5 z-50 flex flex-col items-end gap-3">
+        <div className="absolute top-4 left-5 z-50 flex flex-row items-center gap-2">
+          <LanguageSwitcher
+            lang={lang}
+            onSelect={setLang}
+            panelText={theme.panel.text}
+            uiLine={theme.uiLine}
+            uiSurface={theme.uiSurface}
+          />
+          <CalendarPanel
+            isOpen={isCalOpen}
+            onToggle={() => setIsCalOpen(o => !o)}
+            dailyCount={dailyCount}
+            theme={theme}
+            strings={strings}
+          />
           <ThemeSwitcher
             themes={THEMES}
             currentId={themeId}
@@ -1689,20 +1703,6 @@ export default function Home() {
             uiLine={theme.uiLine}
             uiSurface={theme.uiSurface}
             strings={strings}
-          />
-          <CalendarPanel
-            isOpen={isCalOpen}
-            onToggle={() => setIsCalOpen(o => !o)}
-            dailyCount={dailyCount}
-            theme={theme}
-            strings={strings}
-          />
-          <LanguageSwitcher
-            lang={lang}
-            onSelect={setLang}
-            panelText={theme.panel.text}
-            uiLine={theme.uiLine}
-            uiSurface={theme.uiSurface}
           />
         </div>
       )}
