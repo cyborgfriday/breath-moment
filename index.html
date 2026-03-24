@@ -97,6 +97,34 @@
       border-color: rgba(126,200,227,0.5);
     }
 
+    /* ── Download button ── */
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      padding: 14px 32px;
+      background: var(--ink);
+      color: #fff;
+      font-family: 'Lora', Georgia, serif;
+      font-style: italic;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .download-btn:hover {
+      opacity: 0.82;
+      transform: translateY(-1px);
+    }
+    .download-note {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
     /* ── Section ── */
     section {
       padding: 64px 0;
@@ -352,6 +380,13 @@
       <button class="lang-btn active" onclick="setLang('zh')">中文</button>
       <button class="lang-btn" onclick="setLang('en')">English</button>
     </div>
+    <a class="download-btn" href="https://github.com/cyborgfriday/breath-moment/releases/download/v1.0.0/Breath.Moment.zip" download>
+      ↓ <span data-lang="zh-inline">下載 Breath Moment</span><span data-lang="en-inline">Download Breath Moment</span>
+    </a>
+    <p class="download-note">
+      <span data-lang="zh-inline">Chrome 擴充功能・免費・無需帳號</span>
+      <span data-lang="en-inline">Chrome extension · Free · No account needed</span>
+    </p>
   </div>
 
   <!-- Philosophy -->
