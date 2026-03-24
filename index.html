@@ -86,6 +86,21 @@
       background: var(--border);
       flex-shrink: 0;
     }
+    .navbar-dl {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      flex-shrink: 0;
+      transition: opacity 0.18s ease;
+    }
+    .navbar-dl:hover { opacity: 0.8; }
+
     .lang-toggle {
       display: flex;
       gap: 4px;
@@ -178,19 +193,14 @@
       color: var(--faint);
       letter-spacing: 0.04em;
     }
-    .install-hint {
-      margin-top: 16px;
-    }
-    .install-hint a {
-      font-size: 0.8rem;
+    .hero-meta a {
       color: var(--muted);
       text-decoration: none;
       border-bottom: 1px solid var(--border);
       padding-bottom: 1px;
-      letter-spacing: 0.04em;
       transition: color 0.18s ease, border-color 0.18s ease;
     }
-    .install-hint a:hover {
+    .hero-meta a:hover {
       color: var(--ink);
       border-color: var(--muted);
     }
@@ -410,6 +420,9 @@
         <a href="#feedback"><span data-lang="zh-inline">回饋</span><span data-lang="en-inline">Feedback</span></a>
       </div>
       <div class="navbar-divider"></div>
+      <a class="navbar-dl" href="https://github.com/cyborgfriday/breath-moment/releases/download/v1.0.0/Breath.Moment.zip" download>
+        <span data-lang="zh-inline">下載</span><span data-lang="en-inline">Download</span>
+      </a>
       <div class="lang-toggle">
         <button class="lang-btn active" onclick="setLang('zh')" id="nav-zh-btn">中文</button>
         <button class="lang-btn" onclick="setLang('en')" id="nav-en-btn">EN</button>
@@ -426,7 +439,7 @@
       <span data-lang="en-inline">A cloud of stillness in every new tab.</span>
     </p>
     <div class="hero-video">
-      <video autoplay muted loop playsinline>
+      <video controls muted playsinline>
         <source src="public/demo.mp4" type="video/mp4" />
       </video>
     </div>
@@ -435,14 +448,8 @@
       ↓&nbsp;<span data-lang="zh-inline">下載 Breath Moment</span><span data-lang="en-inline">Download Breath Moment</span>
     </a>
     <p class="hero-meta">
-      <span data-lang="zh-inline">Chrome 擴充功能・免費・無需帳號</span>
-      <span data-lang="en-inline">Chrome extension · Free · No account needed</span>
-    </p>
-    <p class="install-hint">
-      <a href="#install">
-        <span data-lang="zh-inline">手動安裝指南 ↓</span>
-        <span data-lang="en-inline">Installation guide ↓</span>
-      </a>
+      <span data-lang="zh-inline">免費・無需帳號・<a href="#install">手動安裝指南 ↓</a></span>
+      <span data-lang="en-inline">Free · No account · <a href="#install">Installation guide ↓</a></span>
     </p>
   </div>
 
