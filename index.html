@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Breath Moment</title>
-  <link rel="icon" href="breath-moment/favicon.png" />
+  <link rel="icon" href="public/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+TC:wght@300;400&display=swap" rel="stylesheet" />
@@ -95,6 +95,66 @@
       background: var(--glass);
       color: var(--ink);
       border-color: rgba(126,200,227,0.5);
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(223,240,247,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+    }
+    .navbar-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+    }
+    .navbar-brand {
+      font-family: 'Lora', Georgia, serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.8;
+    }
+    .navbar-links {
+      display: flex;
+      gap: 24px;
+    }
+    .navbar-links a {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .navbar-links a:hover {
+      color: var(--ink);
+    }
+
+    /* ── Install hint ── */
+    .install-hint {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+    .install-hint a {
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s ease;
+    }
+    .install-hint a:hover {
+      color: var(--ink);
     }
 
     /* ── Download button ── */
@@ -371,21 +431,37 @@
 </head>
 <body class="lang-zh">
 
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="navbar-brand" href="#">Breath Moment</a>
+      <div class="navbar-links">
+        <a href="#features"><span data-lang="zh-inline">功能</span><span data-lang="en-inline">Features</span></a>
+        <a href="#install"><span data-lang="zh-inline">安裝指南</span><span data-lang="en-inline">Install</span></a>
+        <a href="#feedback"><span data-lang="zh-inline">回饋</span><span data-lang="en-inline">Feedback</span></a>
+        <button class="lang-btn active" onclick="setLang('zh')" id="nav-zh-btn">中文</button>
+        <button class="lang-btn" onclick="setLang('en')" id="nav-en-btn">EN</button>
+      </div>
+    </div>
+  </nav>
+
   <!-- Hero -->
   <div class="hero">
-    <img src="breath-moment/icons/icon128.png" alt="Breath Moment icon" class="hero-icon" />
+    <img src="public/icons/icon128.png" alt="Breath Moment icon" class="hero-icon" />
     <h1>Breath Moment</h1>
     <p class="tagline">A cloud of stillness in every new tab.</p>
-    <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('zh')">中文</button>
-      <button class="lang-btn" onclick="setLang('en')">English</button>
-    </div>
     <a class="download-btn" href="https://github.com/cyborgfriday/breath-moment/releases/download/v1.0.0/Breath.Moment.zip" download>
       ↓ <span data-lang="zh-inline">下載 Breath Moment</span><span data-lang="en-inline">Download Breath Moment</span>
     </a>
     <p class="download-note">
       <span data-lang="zh-inline">Chrome 擴充功能・免費・無需帳號</span>
       <span data-lang="en-inline">Chrome extension · Free · No account needed</span>
+    </p>
+    <p class="install-hint">
+      <a href="#install">
+        <span data-lang="zh-inline">↓ 手動安裝指南</span>
+        <span data-lang="en-inline">↓ Installation guide</span>
+      </a>
     </p>
   </div>
 
@@ -417,7 +493,7 @@ This minute is yours.</p>
   </section>
 
   <!-- Features -->
-  <section>
+  <section id="features">
     <div class="container">
       <div data-lang="zh">
         <p class="section-label">功能</p>
@@ -489,7 +565,7 @@ This minute is yours.</p>
   </section>
 
   <!-- Install -->
-  <section>
+  <section id="install">
     <div class="container">
       <div data-lang="zh">
         <p class="section-label">安裝方法</p>
@@ -559,7 +635,7 @@ This minute is yours.</p>
   </section>
 
   <!-- Feedback -->
-  <section class="feedback">
+  <section id="feedback" class="feedback">
     <div data-lang="zh">
       <p>這是一個剛出生的小作品。<br>
       如果你有任何感受、建議，或只是想說聲好，<br>
@@ -580,9 +656,8 @@ This minute is yours.</p>
   <script>
     function setLang(lang) {
       document.body.className = 'lang-' + lang;
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.trim() === (lang === 'zh' ? '中文' : 'English'));
-      });
+      document.getElementById('nav-zh-btn').classList.toggle('active', lang === 'zh');
+      document.getElementById('nav-en-btn').classList.toggle('active', lang === 'en');
     }
   </script>
 </body>
