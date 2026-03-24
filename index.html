@@ -438,9 +438,16 @@
       <span data-lang="en-inline">A cloud of stillness in every new tab.</span>
     </p>
     <div class="hero-video">
-      <video controls muted playsinline>
-        <source src="public/demo.mp4" type="video/mp4" />
-      </video>
+      <div data-lang="zh">
+        <video controls muted playsinline>
+          <source src="public/demo.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div data-lang="en">
+        <video controls muted playsinline>
+          <source src="public/demo-en.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
 
     <a class="download-btn" href="https://github.com/cyborgfriday/breath-moment/releases/download/v1.0.0/Breath.Moment.v1.0.0.zip" download>
@@ -601,6 +608,10 @@
       document.body.className = 'lang-' + lang;
       document.getElementById('nav-zh-btn').classList.toggle('active', lang === 'zh');
       document.getElementById('nav-en-btn').classList.toggle('active', lang === 'en');
+      // Pause any videos inside wrappers that just became hidden
+      document.querySelectorAll('[data-lang] video').forEach(function(v) {
+        if (v.closest('[data-lang]').getAttribute('data-lang') !== lang) v.pause();
+      });
     }
 
     // Auto-detect: zh if browser prefers any Chinese variant, else en
