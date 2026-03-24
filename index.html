@@ -138,10 +138,25 @@
       letter-spacing: 0.05em;
       margin-bottom: 36px;
     }
+    .hero-video {
+      width: 100%;
+      max-width: 580px;
+      margin: 36px auto 0;
+      display: block;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(45,74,88,0.12), 0 2px 8px rgba(45,74,88,0.06);
+      overflow: hidden;
+    }
+    .hero-video video {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+    }
     .download-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      margin-top: 40px;
       padding: 14px 36px;
       background: var(--ink);
       color: #fff;
@@ -410,6 +425,12 @@
       <span data-lang="zh-inline">在每個新分頁，給自己一個呼吸的空間。</span>
       <span data-lang="en-inline">A cloud of stillness in every new tab.</span>
     </p>
+    <div class="hero-video">
+      <video autoplay muted loop playsinline>
+        <source src="public/demo.mp4" type="video/mp4" />
+      </video>
+    </div>
+
     <a class="download-btn" href="https://github.com/cyborgfriday/breath-moment/releases/download/v1.0.0/Breath.Moment.zip" download>
       ↓&nbsp;<span data-lang="zh-inline">下載 Breath Moment</span><span data-lang="en-inline">Download Breath Moment</span>
     </a>
