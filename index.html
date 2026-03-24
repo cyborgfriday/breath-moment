@@ -575,6 +575,10 @@
       document.getElementById('nav-zh-btn').classList.toggle('active', lang === 'zh');
       document.getElementById('nav-en-btn').classList.toggle('active', lang === 'en');
     }
+
+    // Auto-detect: zh if browser prefers any Chinese variant, else en
+    const browserLang = navigator.language || navigator.languages?.[0] || 'zh';
+    setLang(browserLang.toLowerCase().startsWith('zh') ? 'zh' : 'en');
   </script>
 </body>
 </html>
