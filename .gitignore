@@ -46,3 +46,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /Demo/
+/public video for gh
+
+# ai assistant folders
+.agent/
+.agents/
+.claude/
+.kiro/
