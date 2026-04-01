@@ -33,6 +33,8 @@ This minute is yours.
 
 - **4-7-8 呼吸法** — 吸氣 4 秒，屏息 7 秒，呼氣 8 秒，三個循環，約一分鐘。緩解焦慮最適合的呼吸法
 - **每日紀錄** — 記錄你今天練習了幾次、累積了多少時間
+- **自訂捷徑** — 支援自訂常用網站捷徑，自動抓取網站圖示並支援快速編輯。
+- **待辦清單** — 極簡風格的待辦清單，幫助你紀錄每一天的工作與思緒。
 - **三種主題** — Riverside（河畔微風）、Lavender Dawn（薰衣草黎明）、Nocturne（月光夜曲）
 - **五種語言** — 英文、繁體中文、日文、韓文、西班牙文
 - **無帳號，無追蹤** — 所有資料僅存於本機瀏覽器
@@ -43,6 +45,8 @@ This minute is yours.
 
 - **4-7-8 Breathing** — The most effective breathing technique for relieving anxiety. Inhale 4s · Hold 7s · Exhale 8s · Three cycles · About one minute
 - **Daily log** — Tracks how many sessions and how many minutes you've breathed today
+- **Shortcuts** — Add your favorite links with automatic favicons parsing and quick inline editing.
+- **Todo List** — A minimalist todo list to keep track of your daily tasks and thoughts.
 - **Three themes** — Riverside, Lavender Dawn, Nocturne
 - **Five languages** — English, 繁體中文, 日本語, 한국어, Español
 - **No account, no tracking** — All data stays in your local browser
