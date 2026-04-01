@@ -636,23 +636,18 @@ function MinuteDots({ count, times, dotBg, dotShadow, panelText, glassBg, glassB
 // ── Theme switcher ─────────────────────────────────────────────
 function ThemeSwitcher({
   themes, currentId, onSelect, onHover, onHoverEnd, panelText, uiLine, uiSurface, strings,
+  activeMenu, onMenuEnter, onMenuLeave
 }: {
-  themes: ThemeConfig[];
-  currentId: string;
-  onSelect: (id: string) => void;
-  onHover: (id: string) => void;
-  onHoverEnd: () => void;
-  panelText: string;
-  uiLine: string;
-  uiSurface: string;
-  strings: LangStrings;
+  themes: ThemeConfig[]; currentId: string; onSelect: (id: string) => void; onHover: (id: string) => void; onHoverEnd: () => void;
+  panelText: string; uiLine: string; uiSurface: string; strings: LangStrings;
+  activeMenu: string | null; onMenuEnter: (id: string) => void; onMenuLeave: (id: string, isEditing: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const open = activeMenu === 'theme';
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const current = themes.find(t => t.id === currentId)!;
 
   function handleLeave() {
-    setOpen(false);
+    onMenuLeave('theme', false);
     setHoveredId(null);
     onHoverEnd();
   }
@@ -660,7 +655,7 @@ function ThemeSwitcher({
   return (
     <div
       style={{ position: "relative" }}
-      onMouseEnter={() => setOpen(true)}
+      onMouseEnter={() => onMenuEnter('theme')}
       onMouseLeave={handleLeave}
     >
       {/* Trigger — thin circle with color swatch */}
@@ -675,6 +670,7 @@ function ThemeSwitcher({
           transition: "opacity 0.2s ease",
           opacity: open ? 1 : 0.72,
         }}
+        title={strings.themeLabels[currentId]}
       >
         <span style={{
           width: 12, height: 12,
@@ -685,12 +681,12 @@ function ThemeSwitcher({
       </button>
 
       {/* Invisible bridge */}
-      <div style={{ position: "absolute", top: "100%", left: 0, width: "100%", height: 10 }} />
+      <div style={{ position: "absolute", top: "100%", left: 0, width: "100%", height: 12 }} />
 
       {/* Options panel — opens downward */}
       <div style={{
         position: "absolute",
-        top: "calc(100% + 10px)",
+        top: "calc(100% + 12px)",
         left: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
@@ -711,11 +707,11 @@ function ThemeSwitcher({
         {themes.map(th => {
           const isActive = currentId === th.id;
           return (
-            <button
+             <button
               key={th.id}
               onMouseEnter={() => { onHover(th.id); setHoveredId(th.id); }}
               onMouseLeave={() => { setHoveredId(null); }}
-              onClick={() => { onSelect(th.id); setOpen(false); setHoveredId(null); onHoverEnd(); }}
+              onClick={() => { onSelect(th.id); onMenuEnter('theme'); setHoveredId(null); onHoverEnd(); }}
               style={{
                 display: "flex", alignItems: "center", gap: "10px",
                 padding: "8px 11px",
@@ -791,14 +787,13 @@ function Clock({ textColor }: { textColor: string }) {
 // ── Language switcher ──────────────────────────────────────────
 function LanguageSwitcher({
   lang, onSelect, panelText, uiLine, uiSurface,
+  activeMenu, onMenuClick
 }: {
-  lang: LangCode;
-  onSelect: (l: LangCode) => void;
-  panelText: string;
-  uiLine: string;
-  uiSurface: string;
+  lang: LangCode; onSelect: (l: LangCode) => void;
+  panelText: string; uiLine: string; uiSurface: string;
+  activeMenu: string | null; onMenuClick: (id: string | null) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const open = activeMenu === 'lang';
   const containerRef = useRef<HTMLDivElement>(null);
   const current = LANG_META.find(l => l.code === lang)!;
 
@@ -807,18 +802,18 @@ function LanguageSwitcher({
     if (!open) return;
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
+        onMenuClick(null);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+  }, [open, onMenuClick]);
 
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       {/* Trigger — abbreviation, thin circle */}
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => onMenuClick(open ? null : 'lang')}
         style={{
           width: 36, height: 36,
           borderRadius: "50%",
@@ -845,10 +840,10 @@ function LanguageSwitcher({
         </span>
       </button>
 
-      {/* Options panel — opens upward */}
+      {/* Options panel — opens DOWNWARD now since it's at the top */}
       <div style={{
         position: "absolute",
-        bottom: "calc(100% + 10px)",
+        top: "calc(100% + 12px)",
         left: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
@@ -858,10 +853,10 @@ function LanguageSwitcher({
         flexDirection: "column",
         gap: "1px",
         minWidth: 110,
-        boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         opacity: open ? 1 : 0,
-        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(6px)",
-        transformOrigin: "bottom left",
+        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
+        transformOrigin: "top left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: open ? "auto" : "none",
         zIndex: 60,
@@ -871,7 +866,7 @@ function LanguageSwitcher({
           return (
             <button
               key={code}
-              onClick={() => { onSelect(code); setOpen(false); }}
+              onClick={() => { onSelect(code); onMenuClick(null); }}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "7px 11px",
@@ -1023,20 +1018,20 @@ function CalendarPanel({
         </svg>
       </button>
 
-      {/* Calendar panel — opens downward, flat minimal style */}
+      {/* Calendar panel — opens upward, flat minimal style */}
       <div style={{
         position: "absolute",
-        top: "calc(100% + 12px)",
+        bottom: "calc(100% + 12px)",
         left: 0,
         width: 272,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
         borderRadius: "18px",
         padding: "16px 14px 14px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
         opacity: isOpen ? 1 : 0,
-        transform: isOpen ? "scale(1) translateY(0)" : "scale(0.94) translateY(-8px)",
-        transformOrigin: "top left",
+        transform: isOpen ? "scale(1) translateY(0)" : "scale(0.94) translateY(8px)",
+        transformOrigin: "bottom left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: isOpen ? "auto" : "none",
       }}>
@@ -1170,8 +1165,8 @@ function CalendarPanel({
 }
 
 // ── Links ──────────────────────────────────────────────────────
-function LinksMenu({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
-  const [open, setOpen] = useState(false);
+function LinksMenu({ theme, lang, activeMenu, onMenuEnter, onMenuLeave }: { theme: ThemeConfig; lang: LangCode; activeMenu: string | null; onMenuEnter: (id: string) => void; onMenuLeave: (id: string, isEditing: boolean) => void; }) {
+  const open = activeMenu === 'links';
   const containerRef = useRef<HTMLDivElement>(null);
   const [links, setLinks] = useState<{id:string, title:string, url:string}[]>([]);
   const [isAdding, setIsAdding] = useState(false);
@@ -1202,13 +1197,6 @@ function LinksMenu({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
       setEditingId(null);
       return;
     }
-    const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
   const { panel, uiLine, uiSurface } = theme;
@@ -1271,9 +1259,12 @@ function LinksMenu({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
   };
 
   return (
-    <div ref={containerRef} style={{ position: "relative" }}>
+    <div ref={containerRef} style={{ position: "relative" }}
+         onMouseEnter={() => onMenuEnter('links')}
+         onMouseLeave={() => onMenuLeave('links', isAdding || editingId !== null)}
+    >
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => open ? onMenuLeave('links', false) : onMenuEnter('links')}
         style={{
           width: 36, height: 36, borderRadius: "50%",
           background: "transparent", border: `1px solid ${uiLine}`,
@@ -1414,8 +1405,8 @@ function LinksMenu({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
 }
 
 // ── Todo ──────────────────────────────────────────────────────
-function TodoPanel({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
-  const [open, setOpen] = useState(false);
+function TodoPanel({ theme, lang, activeMenu, onMenuEnter, onMenuLeave }: { theme: ThemeConfig; lang: LangCode; activeMenu: string | null; onMenuEnter: (id: string) => void; onMenuLeave: (id: string, isEditing: boolean) => void; }) {
+  const open = activeMenu === 'todo';
   const containerRef = useRef<HTMLDivElement>(null);
   const [todos, setTodos] = useState<{id:string, text:string, done:boolean}[]>([]);
   const [newVal, setNewVal] = useState("");
@@ -1436,11 +1427,13 @@ function TodoPanel({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onMenuLeave('todo', false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+  }, [open, onMenuLeave]);
 
   const { panel, uiLine, uiSurface } = theme;
   const isZh = lang === 'zh';
@@ -1461,9 +1454,12 @@ function TodoPanel({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
   };
 
   return (
-    <div ref={containerRef} style={{ position: "relative" }}>
+    <div ref={containerRef} style={{ position: "relative" }}
+         onMouseEnter={() => onMenuEnter('todo')}
+         onMouseLeave={() => onMenuLeave('todo', newVal.trim().length > 0)}
+    >
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => open ? onMenuLeave('todo', false) : onMenuEnter('todo')}
         style={{
           width: 36, height: 36, borderRadius: "50%",
           background: "transparent", border: `1px solid ${uiLine}`,
@@ -1546,12 +1542,31 @@ export default function Home() {
   const [sessionTimes, setSessionTimes]   = useState<Record<string, string[]>>({});
   const [isCalOpen, setIsCalOpen]         = useState(false);
 
+  const [activeMenu, setActiveMenu]       = useState<string | null>(null);
+
+  const hoverTimer      = useRef<NodeJS.Timeout | null>(null);
   const sessionTimer    = useRef<ReturnType<typeof setTimeout>  | null>(null);
   const phaseTimers     = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dotTimer        = useRef<ReturnType<typeof setInterval> | null>(null);
   const completionTimer = useRef<ReturnType<typeof setTimeout>  | null>(null);
   const cycleRef        = useRef(1);
   const langRef         = useRef<LangCode>(lang);
+
+  const handleMenuEnter = (id: string) => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setActiveMenu(id);
+  };
+  const handleMenuLeave = (id: string, isEditing: boolean) => {
+    if (isEditing) return;
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => {
+      setActiveMenu(prev => (prev === id ? null : prev));
+    }, 1000);
+  };
+  const handleMenuClick = (id: string | null) => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setActiveMenu(id);
+  };
 
 
   // hoverThemeId gives live background preview; confirmed on click
@@ -1987,21 +2002,30 @@ export default function Home() {
 
           {/* Stats: subtitle + dots. Tooltip floats up into the spacer, away from phrase */}
           <div className="flex flex-col items-center gap-4 pb-7 w-full">
-            {todayCount > 0 && (
-              <p style={{
-                fontFamily: "var(--font-serif)",
-                fontWeight: 300,
-                fontStyle: it,
-                fontSize: isCJK ? "0.82rem" : "0.9rem",
-                letterSpacing: isCJK ? "0.08em" : undefined,
-                lineHeight: isCJK ? 1.9 : undefined,
-                color: tx.secondary,
-                textAlign: "center",
-                transition: "color 0.9s ease",
-              }}>
-                {strings.subtitle(todayCount)}
-              </p>
-            )}
+            <div className="flex flex-row items-center gap-3">
+              {todayCount > 0 && (
+                <p style={{
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 300,
+                  fontStyle: it,
+                  fontSize: isCJK ? "0.82rem" : "0.9rem",
+                  letterSpacing: isCJK ? "0.08em" : undefined,
+                  lineHeight: isCJK ? 1.9 : undefined,
+                  color: tx.secondary,
+                  textAlign: "center",
+                  transition: "color 0.9s ease",
+                }}>
+                  {strings.subtitle(todayCount)}
+                </p>
+              )}
+              <CalendarPanel
+                isOpen={isCalOpen}
+                onToggle={() => setIsCalOpen(o => !o)}
+                dailyCount={dailyCount}
+                theme={theme}
+                strings={strings}
+              />
+            </div>
             <MinuteDots
               count={todayCount}
               times={todayTimes}
@@ -2016,48 +2040,20 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── Top-left: Links / Todo / date / theme ── */}
+      {/* ── Top-left: Links / Todo | Lang / Theme ── */}
       {completion === null && (
         <div className="absolute top-4 left-5 z-50 flex flex-row items-center gap-2">
-          <LinksMenu theme={theme} lang={lang} />
-          <TodoPanel theme={theme} lang={lang} />
-          <CalendarPanel
-            isOpen={isCalOpen}
-            onToggle={() => setIsCalOpen(o => !o)}
-            dailyCount={dailyCount}
-            theme={theme}
-            strings={strings}
-          />
-          <ThemeSwitcher
-            themes={THEMES}
-            currentId={themeId}
-            onSelect={setThemeId}
-            onHover={setHoverThemeId}
-            onHoverEnd={() => setHoverThemeId(null)}
-            panelText={theme.panel.text}
-            uiLine={theme.uiLine}
-            uiSurface={theme.uiSurface}
-            strings={strings}
-          />
+          <LinksMenu theme={theme} lang={lang} activeMenu={activeMenu} onMenuEnter={handleMenuEnter} onMenuLeave={handleMenuLeave} />
+          <TodoPanel theme={theme} lang={lang} activeMenu={activeMenu} onMenuEnter={handleMenuEnter} onMenuLeave={handleMenuLeave} />
+          <div style={{ width: 1, height: 16, background: theme.uiLine, margin: "0 4px" }} />
+          <LanguageSwitcher lang={lang} onSelect={setLang} panelText={theme.panel.text} uiLine={theme.uiLine} uiSurface={theme.uiSurface} activeMenu={activeMenu} onMenuClick={handleMenuClick} />
+          <ThemeSwitcher themes={THEMES} currentId={themeId} onSelect={setThemeId} onHover={setHoverThemeId} onHoverEnd={() => setHoverThemeId(null)} panelText={theme.panel.text} uiLine={theme.uiLine} uiSurface={theme.uiSurface} strings={strings} activeMenu={activeMenu} onMenuEnter={handleMenuEnter} onMenuLeave={handleMenuLeave} />
         </div>
       )}
 
-      {/* ── Bottom-left: language ── */}
+      {/* ── Top-center: Logo ── */}
       {completion === null && (
-        <div className="absolute bottom-5 left-5 z-50">
-          <LanguageSwitcher
-            lang={lang}
-            onSelect={setLang}
-            panelText={theme.panel.text}
-            uiLine={theme.uiLine}
-            uiSurface={theme.uiSurface}
-          />
-        </div>
-      )}
-
-      {/* ── Bottom-right: Logo ── */}
-      {completion === null && (
-        <div className="absolute bottom-5 right-6 z-10 flex flex-row items-center">
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex flex-row items-center">
           <span style={{
             fontFamily: "var(--font-lora), Georgia, serif",
             fontStyle: "italic",
