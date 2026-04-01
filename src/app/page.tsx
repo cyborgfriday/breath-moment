@@ -845,10 +845,10 @@ function LanguageSwitcher({
         </span>
       </button>
 
-      {/* Options panel — opens downward */}
+      {/* Options panel — opens upward */}
       <div style={{
         position: "absolute",
-        top: "calc(100% + 10px)",
+        bottom: "calc(100% + 10px)",
         left: 0,
         background: uiSurface,
         border: `1px solid ${uiLine}`,
@@ -858,10 +858,10 @@ function LanguageSwitcher({
         flexDirection: "column",
         gap: "1px",
         minWidth: 110,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+        boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
         opacity: open ? 1 : 0,
-        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
-        transformOrigin: "top left",
+        transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(6px)",
+        transformOrigin: "bottom left",
         transition: "opacity 0.18s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
         pointerEvents: open ? "auto" : "none",
         zIndex: 60,
@@ -1169,6 +1169,364 @@ function CalendarPanel({
   );
 }
 
+// ── Links ──────────────────────────────────────────────────────
+function LinksMenu({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [links, setLinks] = useState<{id:string, title:string, url:string}[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newUrl, setNewUrl] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("bm_links");
+    if (saved) {
+      try { setLinks(JSON.parse(saved)); } catch {}
+    } else {
+      setLinks([
+        { id: "1", title: "Chrome Tab", url: "chrome://newtab/" },
+      ]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (links.length > 0 || localStorage.getItem("bm_links")) localStorage.setItem("bm_links", JSON.stringify(links));
+  }, [links]);
+
+  useEffect(() => {
+    if (!open) {
+      setIsAdding(false);
+      setEditingId(null);
+      return;
+    }
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const { panel, uiLine, uiSurface } = theme;
+  const isZh = lang === 'zh';
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNewUrl(val);
+    try {
+      const parsed = new URL(val.startsWith("http") ? val : `https://${val}`);
+      let domain = parsed.hostname.replace("www.", "");
+      if (domain) {
+         const parts = domain.split(".");
+         if (parts.length > 0) {
+            domain = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+         }
+      }
+      if (!newTitle || newTitle === "New Link" || newUrl === "") {
+        setNewTitle(domain || val);
+      }
+    } catch {
+       // invalid url, do nothing to title
+    }
+  };
+
+  const handleSave = () => {
+    if (newUrl.trim()) {
+      let finalUrl = newUrl.trim();
+      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://") && !finalUrl.startsWith("chrome://")) {
+        finalUrl = "https://" + finalUrl;
+      }
+      setLinks([...links, { id: Date.now().toString(), title: newTitle.trim() || finalUrl, url: finalUrl }]);
+      setIsAdding(false);
+      setNewUrl("");
+      setNewTitle("");
+    }
+  };
+
+  const saveEdit = () => {
+    if (!editUrl.trim()) return;
+    let finalUrl = editUrl.trim();
+    if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://") && !finalUrl.startsWith("chrome://")) {
+      finalUrl = "https://" + finalUrl;
+    }
+    setLinks(links.map(l => l.id === editingId ? { ...l, title: editTitle.trim() || finalUrl, url: finalUrl } : l));
+    setEditingId(null);
+  };
+
+  const openEdit = (link: {id:string, title:string, url:string}) => {
+    setEditingId(link.id);
+    setEditTitle(link.title);
+    setEditUrl(link.url);
+    setIsAdding(false);
+  };
+
+  const removeLink = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLinks(links.filter(l => l.id !== id));
+  };
+
+  return (
+    <div ref={containerRef} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: 36, height: 36, borderRadius: "50%",
+          background: "transparent", border: `1px solid ${uiLine}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", outline: "none",
+          transition: "opacity 0.2s ease",
+          opacity: open ? 1 : 0.72,
+        }}
+        title={isZh ? "捷徑" : "Links"}
+        onMouseEnter={e => e.currentTarget.style.opacity = "1"}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.opacity = "0.72"; }}
+      >
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M4.5 9.5C3.11929 9.5 2 8.38071 2 7C2 5.61929 3.11929 4.5 4.5 4.5H5.5" stroke={panel.text} strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M10.5 5.5C11.8807 5.5 13 6.61929 13 8C13 9.38071 11.8807 10.5 10.5 10.5H9.5" stroke={panel.text} strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M5.5 7.5H9.5" stroke={panel.text} strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      </button>
+      
+      <div style={{
+        position: "absolute", top: "calc(100% + 12px)", left: 0,
+        background: uiSurface, border: `1px solid ${uiLine}`, borderRadius: "14px",
+        padding: "8px", minWidth: 200, boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+        opacity: open ? 1 : 0, transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-6px)",
+        transformOrigin: "top left", transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)", pointerEvents: open ? "auto" : "none", zIndex: 60
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 220, overflowY: "auto", overflowX: "hidden" }}>
+          {links.map(link => {
+            if (editingId === link.id) {
+               return (
+                  <div key={link.id} style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px", background: "rgba(0,0,0,0.03)", borderRadius: "8px", margin: "2px 0" }}>
+                    <input 
+                      type="text" autoFocus value={editUrl} onChange={e => setEditUrl(e.target.value)}
+                      placeholder={isZh ? "輸入網址..." : "URL..."} style={{
+                        width: "100%", padding: "4px 4px", background: "transparent", border: "none", 
+                        borderBottom: `1px solid ${uiLine}`, color: panel.text, fontFamily: "var(--font-serif)", fontSize: "0.8rem", outline: "none"
+                      }}
+                      onKeyDown={e => { if(e.key==="Enter") { saveEdit(); } }}
+                    />
+                    <input 
+                      type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)}
+                      placeholder={isZh ? "名稱" : "Title"} style={{
+                        width: "100%", padding: "4px 4px", background: "transparent", border: "none", 
+                        borderBottom: `1px solid ${uiLine}`, color: panel.text, fontFamily: "var(--font-serif)", fontSize: "0.8rem", outline: "none"
+                      }}
+                      onKeyDown={e => { if(e.key==="Enter") { saveEdit(); } }}
+                    />
+                    <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                      <button onClick={saveEdit} style={{ flex: 1, background: panel.text, color: uiSurface, border: "none", borderRadius: "6px", padding: "4px 0", fontSize: "0.75rem", cursor: "pointer" }}>{isZh ? "儲存" : "Save"}</button>
+                      <button onClick={() => setEditingId(null)} style={{ flex: 1, background: "transparent", color: panel.text, border: `1px solid ${uiLine}`, opacity: 0.8, borderRadius: "6px", padding: "4px 0", fontSize: "0.75rem", cursor: "pointer" }}>{isZh ? "取消" : "Cancel"}</button>
+                    </div>
+                  </div>
+               );
+            }
+
+            let iconUrl = "";
+            try { 
+              const hostname = new URL(link.url).hostname;
+              if (hostname) iconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+            } catch {}
+            return (
+            <div key={link.id} style={{ display: "flex", position: "relative" }} className="group">
+              <a href={link.url} style={{
+                textDecoration: "none", color: panel.text, fontSize: "0.82rem",
+                padding: "6px 48px 6px 10px", borderRadius: "8px", transition: "background 0.15s ease",
+                fontFamily: "var(--font-serif)", flex: 1, display: "flex", alignItems: "center", gap: 8,
+                overflow: "hidden"
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = uiLine}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >
+                {iconUrl && (
+                  <img src={iconUrl} alt="" 
+                       style={{ width: "14px", height: "14px", borderRadius: "3px", flexShrink: 0, opacity: 0.85 }} 
+                       onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                )}
+                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {link.title}
+                </span>
+              </a>
+              <div style={{
+                position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
+                display: "flex", gap: 2, padding: "0 2px"
+              }} className="opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEdit(link); }} style={{
+                  background: "none", border: "none", color: panel.text, opacity: 0.4, cursor: "pointer",
+                  padding: "0 4px", fontSize: "0.95rem"
+                }} title={isZh ? "編輯" : "Edit"} onMouseEnter={e=>e.currentTarget.style.opacity="0.8"} onMouseLeave={e=>e.currentTarget.style.opacity="0.4"}>✎</button>
+                <button onClick={(e) => removeLink(link.id, e)} style={{
+                  background: "none", border: "none", color: panel.text, opacity: 0.4, cursor: "pointer",
+                  padding: "0 4px", fontSize: "1.1rem", marginTop: "-1px"
+                }} title={isZh ? "刪除" : "Delete"} onMouseEnter={e=>e.currentTarget.style.opacity="0.8"} onMouseLeave={e=>e.currentTarget.style.opacity="0.4"}>×</button>
+              </div>
+            </div>
+          )})}
+          {links.length === 0 && !isAdding && (
+             <div style={{ fontFamily: "var(--font-serif)", fontSize: "0.8rem", color: panel.text, opacity: 0.5, textAlign: "center", margin: "10px 0" }}>
+               {isZh ? "無捷徑" : "No links yet"}
+             </div>
+          )}
+          
+          <div style={{ borderTop: `1px solid ${uiLine}`, marginTop: 4, paddingTop: 4 }}>
+            {!isAdding ? (
+              <button
+                 onClick={() => { setIsAdding(true); setEditingId(null); }}
+                 style={{ background: "transparent", border: "none", cursor: "pointer", width: "100%", textAlign: "left", padding: "6px 10px", color: panel.text, opacity: 0.7, fontSize: "0.8rem", borderRadius: "8px" }}
+                 onMouseEnter={e => {e.currentTarget.style.background = uiLine; e.currentTarget.style.opacity = "1"}}
+                 onMouseLeave={e => {e.currentTarget.style.background = "transparent"; e.currentTarget.style.opacity = "0.7"}}
+              >{isZh ? "+ 新增捷徑" : "+ New Link"}</button>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "4px 8px" }}>
+                <input 
+                  type="text" autoFocus value={newUrl} onChange={handleUrlChange}
+                  placeholder={isZh ? "輸入網址..." : "Paste URL..."} style={{
+                    width: "100%", padding: "4px 0", background: "transparent", border: "none", 
+                    borderBottom: `1px solid ${uiLine}`, color: panel.text, fontFamily: "var(--font-serif)", fontSize: "0.8rem", outline: "none"
+                  }}
+                  onKeyDown={e => { if(e.key==="Enter") handleSave(); }}
+                />
+                <input 
+                  type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} onKeyDown={(e) => { if(e.key === "Enter") handleSave(); }}
+                  placeholder={isZh ? "自訂名稱 (選填)" : "Title (optional)"} style={{
+                    width: "100%", padding: "4px 0", background: "transparent", border: "none", 
+                    borderBottom: `1px solid ${uiLine}`, color: panel.text, fontFamily: "var(--font-serif)", fontSize: "0.8rem", outline: "none"
+                  }}
+                />
+                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                  <button onClick={handleSave} style={{ flex: 1, background: panel.text, color: uiSurface, border: "none", borderRadius: "6px", padding: "4px 0", fontSize: "0.75rem", cursor: "pointer" }}>{isZh ? "儲存" : "Save"}</button>
+                  <button onClick={() => setIsAdding(false)} style={{ flex: 1, background: "transparent", color: panel.text, border: `1px solid ${uiLine}`, borderRadius: "6px", padding: "4px 0", fontSize: "0.75rem", opacity: 0.8, cursor: "pointer" }}>{isZh ? "取消" : "Cancel"}</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Todo ──────────────────────────────────────────────────────
+function TodoPanel({ theme, lang }: { theme: ThemeConfig; lang: LangCode }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [todos, setTodos] = useState<{id:string, text:string, done:boolean}[]>([]);
+  const [newVal, setNewVal] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("bm_todos");
+    if (saved) {
+      try { setTodos(JSON.parse(saved)); } catch {}
+    } else {
+      setTodos([{ id: "1", text: "Take a deep breath", done: false }]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (todos.length > 0 || localStorage.getItem("bm_todos")) localStorage.setItem("bm_todos", JSON.stringify(todos));
+  }, [todos]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const { panel, uiLine, uiSurface } = theme;
+  const isZh = lang === 'zh';
+
+  const handleAdd = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && newVal.trim()) {
+      setTodos([...todos, { id: Date.now().toString(), text: newVal.trim(), done: false }]);
+      setNewVal("");
+    }
+  };
+
+  const toggle = (id: string) => {
+    setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  };
+  
+  const remove = (id: string) => {
+    setTodos(todos.filter(t => t.id !== id));
+  };
+
+  return (
+    <div ref={containerRef} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: 36, height: 36, borderRadius: "50%",
+          background: "transparent", border: `1px solid ${uiLine}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", outline: "none",
+          transition: "opacity 0.2s ease",
+          opacity: open ? 1 : 0.72,
+        }}
+        title={isZh ? "待辦" : "Todo"}
+        onMouseEnter={e => e.currentTarget.style.opacity = "1"}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.opacity = "0.72"; }}
+      >
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <rect x="2" y="2.5" width="11" height="11" rx="2" stroke={panel.text} strokeWidth="1.2" />
+          <path d="M5 7L7 9L10 5" stroke={panel.text} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      
+      <div style={{
+        position: "absolute", top: "calc(100% + 12px)", left: 0,
+        background: uiSurface, border: `1px solid ${uiLine}`, borderRadius: "14px",
+        padding: "16px", minWidth: 260, boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        opacity: open ? 1 : 0, transform: open ? "scale(1) translateY(0)" : "scale(0.94) translateY(-8px)",
+        transformOrigin: "top left", transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)", pointerEvents: open ? "auto" : "none", zIndex: 60,
+        textAlign: "left"
+      }}>
+        <div style={{ fontFamily: "var(--font-serif)", fontSize: "0.95rem", color: panel.text, marginBottom: 16, fontWeight: 500 }}>
+          {isZh ? "今天" : "Today"}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 220, overflowY: "auto", overflowX: "hidden" }}>
+          {todos.map(t => (
+            <div key={t.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, width: "100%" }}>
+              <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)} style={{ cursor: "pointer", marginTop: 4 }} />
+              <span style={{ 
+                fontFamily: "var(--font-serif)", fontSize: "0.85rem", color: panel.text, 
+                opacity: t.done ? 0.4 : 0.9, textDecoration: t.done ? "line-through" : "none",
+                wordBreak: "break-word", flex: 1, lineHeight: 1.4
+              }}>
+                {t.text}
+              </span>
+              <button onClick={() => remove(t.id)} style={{
+                background: "none", border: "none", cursor: "pointer", color: panel.text, opacity: 0.3, fontSize: "1.1rem", marginTop: -3
+              }} onMouseEnter={e=>e.currentTarget.style.opacity="0.8"} onMouseLeave={e=>e.currentTarget.style.opacity="0.3"}>×</button>
+            </div>
+          ))}
+          {todos.length === 0 && (
+             <div style={{ fontFamily: "var(--font-serif)", fontSize: "0.8rem", color: panel.text, opacity: 0.5, textAlign: "center", margin: "10px 0" }}>
+               {isZh ? "無待辦事項" : "No tasks yet"}
+             </div>
+          )}
+        </div>
+        <input 
+          type="text" value={newVal} onChange={e => setNewVal(e.target.value)} onKeyDown={handleAdd}
+          placeholder={isZh ? "新增待辦 (Enter)" : "New Todo (Enter)"} style={{
+            width: "100%", marginTop: 16, padding: "8px 0", background: "transparent", border: "none", 
+            borderBottom: `1px solid ${uiLine}`, color: panel.text, fontFamily: "var(--font-serif)", fontSize: "0.85rem", outline: "none"
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────
 
 export default function Home() {
@@ -1396,25 +1754,7 @@ export default function Home() {
             background: b.b6, filter: "blur(90px)", transition: "background 0.9s ease" }} />
       </div>
 
-      {/* ── Top-center: clock ── */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
-        <Clock textColor={theme.panel.text} />
-      </div>
 
-      {/* ── Top-right: brand name ── */}
-      <div className="absolute top-5 right-6 z-10">
-        <span style={{
-          fontFamily: "var(--font-lora), Georgia, serif",
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: "0.82rem",
-          letterSpacing: "0.08em",
-          color: tx.secondary,
-          transition: "color 0.9s ease",
-        }}>
-          Breath Moment
-        </span>
-      </div>
 
       {/* ── Completion screen (auto-dismisses after 3.5 s) ── */}
       {completion !== null && (
@@ -1676,16 +2016,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── Top-left: language / date / theme ── */}
+      {/* ── Top-left: Links / Todo / date / theme ── */}
       {completion === null && (
         <div className="absolute top-4 left-5 z-50 flex flex-row items-center gap-2">
-          <LanguageSwitcher
-            lang={lang}
-            onSelect={setLang}
-            panelText={theme.panel.text}
-            uiLine={theme.uiLine}
-            uiSurface={theme.uiSurface}
-          />
+          <LinksMenu theme={theme} lang={lang} />
+          <TodoPanel theme={theme} lang={lang} />
           <CalendarPanel
             isOpen={isCalOpen}
             onToggle={() => setIsCalOpen(o => !o)}
@@ -1704,6 +2039,38 @@ export default function Home() {
             uiSurface={theme.uiSurface}
             strings={strings}
           />
+        </div>
+      )}
+
+      {/* ── Bottom-left: language ── */}
+      {completion === null && (
+        <div className="absolute bottom-5 left-5 z-50">
+          <LanguageSwitcher
+            lang={lang}
+            onSelect={setLang}
+            panelText={theme.panel.text}
+            uiLine={theme.uiLine}
+            uiSurface={theme.uiSurface}
+          />
+        </div>
+      )}
+
+      {/* ── Bottom-right: Logo ── */}
+      {completion === null && (
+        <div className="absolute bottom-5 right-6 z-10 flex flex-row items-center">
+          <span style={{
+            fontFamily: "var(--font-lora), Georgia, serif",
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: "0.82rem",
+            letterSpacing: "0.08em",
+            color: tx.secondary,
+            transition: "color 0.9s ease",
+            userSelect: "none",
+            opacity: 0.8
+          }}>
+            Breath Moment
+          </span>
         </div>
       )}
     </div>

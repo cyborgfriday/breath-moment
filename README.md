@@ -122,3 +122,13 @@ Go back to `chrome://extensions`, find *Breath Moment*, and click **Remove**.
 ---
 
 *Take a breath. This moment is enough.*
+
+---
+
+## 更新日誌 / Changelog
+
+### v0.2.0
+- **全新排版**：移除中央時鐘，將 Logo 移至右下角、語系切換移至左下角，給予更乾淨且不緊迫的視覺空間。
+- **全新功能：捷徑 (Links)**：支援自訂常用網站捷徑，並會自動抓取網站圖示 (Favicon)。
+- **全新功能：待辦事項 (Todo)**：簡潔的待辦清單，幫助你紀錄每一天的工作。
+- **UI 優化**：捷徑提供行內編輯功能，操作更流暢直覺。

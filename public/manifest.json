@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Breath Moment",
   "short_name": "Breath Moment",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "A mindful breathing space — one minute, three breaths, right in your new tab.",
   "chrome_url_overrides": {
     "newtab": "index.html"
